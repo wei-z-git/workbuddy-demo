@@ -1,5 +1,5 @@
-const { formatTimeShort, getCheckinPeriod, getRemainingTime, getWeekDayShort } = require('../../utils/util')
-const { mockGroup, mockCycle, mockMembers, mockUser, mockRecentCheckins, mockMyCheckinHistory, resultMap } = require('../../utils/mock-data')
+const { getCheckinPeriod, getRemainingTime } = require('../../utils/util')
+const { mockGroup, mockCycle, mockMembers, mockRecentCheckins, mockMyCheckinHistory, resultMap, D } = require('../../utils/mock-data')
 
 Page({
   data: {
@@ -28,7 +28,7 @@ Page({
 
     // 提醒设置
     reminderOn: true,
-    reminderTime: '21:00'
+    reminderTime: D.app.reminderTime
   },
 
   onLoad() {
@@ -43,11 +43,10 @@ Page({
   initData() {
     const cycle = mockCycle
     const group = mockGroup
-    const user = mockUser
 
     // 构建轮次信息
     const cycleInfo = {
-      roundNumber: 3,
+      roundNumber: D.cycle.roundNumber,
       dayNumber: cycle.dayNumber,
       statusText: `第 ${cycle.dayNumber} 天`,
       encourageText: this.getEncourageText(cycle.dayNumber)
@@ -100,7 +99,7 @@ Page({
   // 构建7天进度圆点
   buildWeekDays(currentDay, history) {
     const days = []
-    const weekLabels = ['一', '二', '三', '四', '五', '六', '日']
+    const weekLabels = D.weekDays
     for (let i = 1; i <= 7; i++) {
       const dayData = history.find(h => h.dayNumber === i)
       let status = 'future'
@@ -128,7 +127,7 @@ Page({
   // 构建热力图
   buildHeatmapDays(currentDay, history) {
     const days = []
-    const weekLabels = ['一', '二', '三', '四', '五', '六', '日']
+    const weekLabels = D.weekDays
     for (let i = 1; i <= 7; i++) {
       const dayData = history.find(h => h.dayNumber === i)
       let cellClass = ''
@@ -156,16 +155,7 @@ Page({
   },
 
   getEncourageText(dayNumber) {
-    const texts = [
-      '新的一轮开始了！',
-      '坚持就是胜利！',
-      '继续加油，保持早睡！',
-      '已经过半啦，稳住！',
-      '冲刺阶段，不要松懈！',
-      '最后一天打卡！',
-      '完美收官！'
-    ]
-    return texts[dayNumber - 1] || '继续加油！'
+    return D.encourageTexts[dayNumber - 1] || D.encourageDefault
   },
 
   // 打卡按钮点击

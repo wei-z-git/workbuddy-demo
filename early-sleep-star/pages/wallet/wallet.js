@@ -1,4 +1,4 @@
-const { mockUser, mockCycle } = require('../../utils/mock-data')
+const { mockUser, mockCycle, D } = require('../../utils/mock-data')
 
 Page({
   data: {
@@ -19,7 +19,6 @@ Page({
 
   initData() {
     const user = mockUser
-    const cycle = mockCycle
 
     const depositInfo = {
       paid: user.deposit.currentDeposit,
@@ -37,18 +36,13 @@ Page({
     this.setData({
       rewardBalance: user.deposit.rewardBalance,
       depositInfo,
-      cycleNumber: 3,
+      cycleNumber: D.cycle.roundNumber,
       transactions
     })
   },
 
   getTransactionLabel(t) {
-    const labels = {
-      reward: '奖励',
-      deposit_refund: '押金退还',
-      deposit_pay: '缴纳押金',
-      net_income: '净收益'
-    }
+    const labels = D.transactionLabels
     return `第${t.cycleNumber}轮 · ${labels[t.type] || t.type}`
   },
 

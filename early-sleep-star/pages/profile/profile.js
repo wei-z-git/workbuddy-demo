@@ -1,5 +1,5 @@
 const { getTitleByCoins } = require('../../utils/util')
-const { mockUser } = require('../../utils/mock-data')
+const { mockUser, D } = require('../../utils/mock-data')
 
 Page({
   data: {
@@ -29,24 +29,21 @@ Page({
     const user = mockUser
     const titleInfo = getTitleByCoins(user.totalCoins)
 
-    // 称号升级进度
+    // 称号升级进度 — 从 titleTiers 配置读取阈值
     let progressPercent = 0
     if (titleInfo.nextThreshold) {
-      const prevThreshold = titleInfo.level === 1 ? 0 :
-        titleInfo.level === 2 ? 11 :
-        titleInfo.level === 3 ? 31 :
-        titleInfo.level === 4 ? 61 : 101
+      const tier = D.titleTiers.find(t => t.level === titleInfo.level)
+      const prevThreshold = tier ? tier.prevThreshold : 0
       progressPercent = Math.round((user.totalCoins - prevThreshold) / (titleInfo.nextThreshold - prevThreshold) * 100)
     } else {
       progressPercent = 100
     }
 
-    // 统计网格
-    const stats = [
-      { value: user.totalCoins, label: '累积早睡币' },
-      { value: user.totalCheckinDays, label: '总打卡天数' },
-      { value: user.totalCycles, label: '参与轮数' }
-    ]
+    // 统计网格 — 从 profileStats 配置构建
+    const stats = D.profileStats.map(s => ({
+      value: user[s.field],
+      label: s.label
+    }))
 
     // 勋章
     const medals = user.medals.map(m => ({
@@ -56,13 +53,16 @@ Page({
       displayIcon: m.earned ? m.icon : '🔒'
     }))
 
-    // 菜单项
-    const menuItems = [
-      { icon: '💰', text: '押金与奖励', right: `余额 ¥${user.deposit.rewardBalance.toFixed(2)} →`, action: 'wallet' },
-      { icon: '📊', text: '睡眠周报', right: '→', action: 'report' },
-      { icon: '🔔', text: '提醒设置', right: '21:00 →', action: 'reminder' },
-      { icon: '📋', text: '活动规则', right: '→', action: 'rules' }
-    ]
+    // 菜单项 — 从 profileMenu 配置构建，补充动态文案
+    const menuItems = D.profileMenu.map(item => {
+      let right = '→'
+      if (item.action === 'wallet') {
+        right = `余额 ¥${user.deposit.rewardBalance.toFixed(2)} →`
+      } else if (item.action === 'reminder') {
+        right = `${D.app.reminderTime} →`
+      }
+      return { ...item, right }
+    })
 
     this.setData({
       userInfo: user,
@@ -86,8 +86,8 @@ Page({
       })
     } else if (action === 'rules') {
       wx.showModal({
-        title: '活动规则',
-        content: '🟢 21:00-23:00 → +2币 · 扣0元\n🟡 23:00-23:30 → +1币 · 扣1元\n🔴 23:30后 → +0币 · 扣2元\n⚫ 未打卡 → +0币 · 扣2元\n\n封顶扣除10元/轮（等于押金）',
+        title: D.rules.title,
+        content: D.rules.content,
         showCancel: false
       })
     } else if (action === 'report') {

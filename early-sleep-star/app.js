@@ -1,3 +1,5 @@
+const { getCheckinPeriod } = require('./utils/util')
+
 App({
   onLaunch() {
     // 小程序启动时执行
@@ -29,21 +31,8 @@ App({
     return Date.now() + this.globalData.serverTimeOffset
   },
 
-  // 判断当前打卡时段
+  // 判断当前打卡时段（委托给 util.js，避免逻辑重复）
   getCheckinPeriod(timestamp) {
-    const date = new Date(timestamp)
-    const hours = date.getHours()
-    const minutes = date.getMinutes()
-    const timeValue = hours * 100 + minutes
-
-    if (timeValue >= 2100 && timeValue < 2300) {
-      return { period: 'gold', label: '早睡黄金时段', coins: 2, penalty: 0, emoji: '🟢' }
-    } else if (timeValue >= 2300 && timeValue < 2330) {
-      return { period: 'late', label: '勉强早睡', coins: 1, penalty: 1, emoji: '🟡' }
-    } else if (timeValue >= 2330) {
-      return { period: 'fail', label: '熬夜了', coins: 0, penalty: 2, emoji: '🔴' }
-    } else {
-      return { period: 'not_in_window', label: '非打卡时段', coins: 0, penalty: 0, emoji: '⚫' }
-    }
+    return getCheckinPeriod(timestamp)
   }
 })

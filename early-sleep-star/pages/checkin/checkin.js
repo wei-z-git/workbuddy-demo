@@ -1,5 +1,5 @@
 const { formatTimeString, getCheckinPeriod, getRemainingTime, getRandomQuestion } = require('../../utils/util')
-const { mockCycle, mockMyCheckinHistory, mockUser, resultMap } = require('../../utils/mock-data')
+const { mockMyCheckinHistory, mockUser, resultMap, D } = require('../../utils/mock-data')
 
 Page({
   data: {
@@ -135,8 +135,8 @@ Page({
     const periodInfo = getCheckinPeriod(now)
 
     const successInfo = {
-      emoji: '🌙✨',
-      text: '晚安，早睡星人！',
+      emoji: D.checkinSuccess.emoji,
+      text: D.checkinSuccess.text,
       coins: `+${periodInfo.coins} 🪙`,
       time: formatTimeString(now).substring(0, 5),
       periodLabel: periodInfo.label,

@@ -1,15 +1,17 @@
-const { resultMap } = require('../../utils/mock-data')
-const { mockMembers, mockCycle } = require('../../utils/mock-data')
+const { mockMembers, resultMap, D } = require('../../utils/mock-data')
+
+const currentUserId = D.app.currentUserId
+
+/**
+ * 根据排名获取颜色
+ */
+const getRankColor = idx => D.rankColors[idx] || D.rankColors[D.rankColors.length - 1]
 
 Page({
   data: {
     // Tab
     activeTab: 'week',
-    tabs: [
-      { key: 'week', label: '本周排行' },
-      { key: 'history', label: '历史总榜' },
-      { key: 'streak', label: '连续天数' }
-    ],
+    tabs: D.leaderboardTabs,
 
     // Top3
     top3: [],
@@ -43,8 +45,8 @@ Page({
         nickname: m.nickname,
         score: m.thisWeekCoins,
         heatDots,
-        isMe: m.userId === 'u005',
-        rankColor: idx === 0 ? 'var(--clr-gold)' : idx === 1 ? 'var(--clr-silver)' : idx === 2 ? 'var(--clr-bronze)' : 'var(--clr-text-secondary)'
+        isMe: m.userId === currentUserId,
+        rankColor: getRankColor(idx)
       }
     })
 
@@ -86,8 +88,8 @@ Page({
         nickname: m.nickname,
         score: m.totalCoins,
         heatDots: [],
-        isMe: m.userId === 'u005',
-        rankColor: idx === 0 ? 'var(--clr-gold)' : idx === 1 ? 'var(--clr-silver)' : idx === 2 ? 'var(--clr-bronze)' : 'var(--clr-text-secondary)'
+        isMe: m.userId === currentUserId,
+        rankColor: getRankColor(idx)
       }))
       this.setData({ leaderboardList })
     } else if (key === 'streak') {
@@ -105,8 +107,8 @@ Page({
         score: m.streak,
         scoreLabel: '天',
         heatDots: [],
-        isMe: m.userId === 'u005',
-        rankColor: idx === 0 ? 'var(--clr-gold)' : idx === 1 ? 'var(--clr-silver)' : idx === 2 ? 'var(--clr-bronze)' : 'var(--clr-text-secondary)'
+        isMe: m.userId === currentUserId,
+        rankColor: getRankColor(idx)
       }))
       this.setData({ leaderboardList })
     } else {

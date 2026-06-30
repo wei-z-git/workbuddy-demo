@@ -1,7 +1,8 @@
 {
   "description": "早睡星人 — 群友早睡打卡微信小程序",
   "packOptions": {
-    "ignore": []
+    "ignore": [],
+    "include": []
   },
   "setting": {
     "urlCheck": false,
@@ -33,11 +34,24 @@
     "bundle": false,
     "useIsolateContext": true,
     "useCompilerModule": true,
-    "userConfUseCompilerModule": false
+    "userConfUseCompilerModule": false,
+    "compileWorklet": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true
   },
   "compileType": "miniprogram",
   "libVersion": "3.3.4",
-  "appid": "wx0000000000000000",
+  "appid": "wx5074ef13af35e25c",
   "projectname": "early-sleep-star",
-  "condition": {}
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
 }
