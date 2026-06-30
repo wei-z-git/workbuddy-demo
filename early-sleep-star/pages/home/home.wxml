@@ -1,0 +1,87 @@
+<view class="page-body">
+
+  <!-- 状态横幅 -->
+  <view class="status-banner">
+    <view class="round-info">第 {{cycleInfo.roundNumber}} 轮 · 打卡第 {{cycleInfo.dayNumber}} 天</view>
+    <view class="round-title">🌙 {{cycleInfo.encourageText}}</view>
+    <view class="round-progress">
+      <view wx:for="{{weekDays}}" wx:key="day"
+        class="day-dot {{item.status}}">{{item.display}}</view>
+    </view>
+  </view>
+
+  <!-- 今日打卡状态 -->
+  <view class="card today-status-card">
+    <view class="card-header">
+      <view class="card-title">今日打卡状态</view>
+      <view class="card-subtitle" style="color:var(--clr-accent);font-weight:600;">
+        {{todayStatus.periodEmoji}} {{todayStatus.periodLabel}} · 还剩 {{todayStatus.remaining}}
+      </view>
+    </view>
+    <view class="today-status-content">
+      <view class="today-emoji">🌗</view>
+      <view class="today-hint">
+        {{todayStatus.checked ? '今日已打卡' : '今天还没打卡哦，21:00-23:00 黄金时段'}}
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷打卡按钮 -->
+  <view class="checkin-hero">
+    <view class="checkin-ring" bindtap="onCheckinTap">
+      <view class="checkin-ring-outer animate-ring-spin"></view>
+      <view class="checkin-ring-inner">
+        <view class="moon-icon">🌙</view>
+        <view class="checkin-text">我准备睡了！</view>
+        <view class="checkin-sub">点击打卡</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 本周打卡记录 -->
+  <view class="card">
+    <view class="card-header">
+      <view class="card-title">本周打卡记录</view>
+    </view>
+    <view class="heatmap">
+      <view wx:for="{{heatmapDays}}" wx:key="day" class="heatmap-col">
+        <view class="heatmap-day">{{item.weekLabel}}</view>
+        <view class="heatmap-cell {{item.cellClass}}"
+          style="{{item.isCurrent && !item.cellClass ? 'border:2px dashed var(--clr-accent);color:var(--clr-text-muted);' : ''}}">
+          {{item.display}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 群动态 -->
+  <view class="card">
+    <view class="card-header">
+      <view class="card-title">群动态 · {{groupInfo.name}}</view>
+      <view class="card-subtitle">{{totalCount}} 人</view>
+    </view>
+    <view class="group-activity">
+      <view wx:for="{{recentCheckins}}" wx:key="userId" class="activity-row">
+        <view class="avatar-small">{{item.avatarLetter}}</view>
+        <view class="activity-text">{{item.nickname}} 已睡 · {{item.time}}</view>
+        <view class="activity-emoji" style="color:{{item.result === 'gold' ? 'var(--clr-success)' : 'var(--clr-warning)'}};">
+          {{item.emoji}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提醒设置 -->
+  <view class="card reminder-card" bindtap="onReminderToggle">
+    <view class="reminder-content">
+      <view class="reminder-info">
+        <view class="card-title" style="margin-bottom:2px;">⏰ 每日提醒</view>
+        <view class="card-subtitle">{{reminderTime}} 推送打卡通知</view>
+      </view>
+      <view class="reminder-status" style="color:var(--clr-accent);font-weight:600;">
+        {{reminderOn ? '已开启' : '已关闭'}}
+      </view>
+    </view>
+  </view>
+
+</view>

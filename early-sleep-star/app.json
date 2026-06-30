@@ -1,0 +1,50 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/checkin/checkin",
+    "pages/leaderboard/leaderboard",
+    "pages/profile/profile",
+    "pages/wallet/wallet"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#2d3b5a",
+    "navigationBarTitleText": "早睡星人",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f3f0"
+  },
+  "tabBar": {
+    "color": "#b8b5b2",
+    "selectedColor": "#f5a623",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/checkin/checkin",
+        "text": "打卡",
+        "iconPath": "images/tab-checkin.png",
+        "selectedIconPath": "images/tab-checkin-active.png"
+      },
+      {
+        "pagePath": "pages/leaderboard/leaderboard",
+        "text": "排行榜",
+        "iconPath": "images/tab-rank.png",
+        "selectedIconPath": "images/tab-rank-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tab-profile.png",
+        "selectedIconPath": "images/tab-profile-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

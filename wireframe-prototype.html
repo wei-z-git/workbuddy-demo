@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>早睡星人 — 小程序线稿与交互原型</title>
+<style>
+/* ===== Design Tokens ===== */
+:root {
+  --clr-bg: #f5f3f0;
+  --clr-surface: #ffffff;
+  --clr-border: #e5e2de;
+  --clr-text: #1a1a1a;
+  --clr-text-secondary: #8c8a87;
+  --clr-text-muted: #b8b5b2;
+  --clr-accent: #f5a623;
+  --clr-accent-soft: #fff3e0;
+  --clr-night: #2d3b5a;
+  --clr-night-light: #4a5a7a;
+  --clr-success: #4caf50;
+  --clr-warning: #ff9800;
+  --clr-error: #e53935;
+  --clr-gold: #ffd700;
+  --clr-silver: #c0c0c0;
+  --clr-bronze: #cd7f32;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  --font-display: 'PingFang SC', 'Noto Sans SC', -apple-system, sans-serif;
+  --font-body: 'PingFang SC', 'Noto Sans SC', -apple-system, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', monospace;
+  --phone-w: 390px;
+  --phone-h: 844px;
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: linear-gradient(135deg, #ece9e6 0%, #f7f4f0 50%, #e8e4df 100%);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  color: var(--clr-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Toolbar ===== */
+.toolbar {
+  width: 100%;
+  max-width: 860px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.toolbar-title h1 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--clr-night);
+}
+.toolbar-title .badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--clr-accent-soft);
+  color: var(--clr-accent);
+  letter-spacing: 0.02em;
+}
+.toolbar-actions {
+  display: flex;
+  gap: 8px;
+}
+.toolbar-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--clr-border);
+  background: var(--clr-surface);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--clr-text-secondary);
+}
+.toolbar-btn:hover { border-color: var(--clr-accent); color: var(--clr-accent); }
+.toolbar-btn.active { background: var(--clr-accent); color: white; border-color: var(--clr-accent); }
+
+/* ===== Main Layout ===== */
+.main-container {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  max-width: 860px;
+  width: 100%;
+}
+.phone-wrapper {
+  flex-shrink: 0;
+  position: sticky;
+  top: 24px;
+}
+.phone-frame {
+  width: var(--phone-w);
+  background: #1a1a2e;
+  border-radius: 40px;
+  padding: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 0 0 2px #2a2a3e, 0 0 0 6px #1a1a2e;
+  position: relative;
+}
+.phone-notch {
+  width: 120px;
+  height: 28px;
+  background: #1a1a2e;
+  border-radius: 0 0 18px 18px;
+  margin: 0 auto 8px;
+}
+.phone-screen {
+  width: 100%;
+  height: 780px;
+  background: var(--clr-bg);
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===== Screen Content ===== */
+.screen-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--clr-bg);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.page.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* ===== Status Bar ===== */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--clr-night);
+  background: var(--clr-bg);
+}
+.status-bar .time { letter-spacing: 0.5px; }
+.status-icons { display: flex; gap: 4px; align-items: center; }
+.status-icons span { font-size: 10px; }
+
+/* ===== Page Header ===== */
+.page-header {
+  padding: 8px 20px 12px;
+  background: var(--clr-bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.page-header h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--clr-night);
+}
+
+/* ===== Page Body ===== */
+.page-body { flex: 1; overflow-y: auto; padding: 0 16px 100px; }
+
+/* ===== Tab Bar ===== */
+.tab-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--clr-surface);
+  border-top: 1px solid var(--clr-border);
+  display: flex;
+  padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+  z-index: 100;
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--clr-text-muted);
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 10px;
+}
+.tab-item.active { color: var(--clr-accent); }
+.tab-item .tab-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.tab-item .tab-label { font-weight: 500; }
+
+/* ===== Cards ===== */
+.card {
+  background: var(--clr-surface);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--clr-border);
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--clr-night);
+}
+.card-subtitle { font-size: 12px; color: var(--clr-text-secondary); }
+
+/* ===== Status Banner ===== */
+.status-banner {
+  background: linear-gradient(135deg, #2d3b5a 0%, #1e2a3a 100%);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 12px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.status-banner::after {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.status-banner .round-info {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+.status-banner .round-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.status-banner .round-progress {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+.status-banner .day-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+}
+.status-banner .day-dot.done { background: rgba(76,175,80,0.4); color: white; }
+.status-banner .day-dot.late { background: rgba(255,152,0,0.4); color: white; }
+.status-banner .day-dot.today {
+  background: rgba(245,166,35,0.5);
+  color: white;
+  box-shadow: 0 0 0 3px rgba(245,166,35,0.3);
+}
+.status-banner .day-dot.future { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 24px;
+  border-radius: var(--radius-xl);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: var(--clr-accent);
+  color: white;
+  box-shadow: 0 4px 16px rgba(245,166,35,0.3);
+}
+.btn-primary:hover { box-shadow: 0 6px 20px rgba(245,166,35,0.4); transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--clr-surface);
+  color: var(--clr-accent);
+  border: 1.5px solid var(--clr-accent);
+}
+.btn-large {
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 17px;
+}
+.btn-block { width: 100%; }
+
+/* ===== Check-in Button (Hero) ===== */
+.checkin-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+}
+.checkin-ring {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 16px;
+}
+.checkin-ring::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: conic-gradient(var(--clr-accent) 0deg, var(--clr-accent) 180deg, transparent 180deg);
+  opacity: 0.2;
+  animation: ring-spin 4s linear infinite;
+}
+@keyframes ring-spin { to { transform: rotate(360deg); } }
+.checkin-ring-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2d3b5a 0%, #1e2a3a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+.checkin-ring-inner .moon-icon { font-size: 36px; margin-bottom: 4px; }
+.checkin-ring-inner .checkin-text { font-size: 15px; font-weight: 700; }
+.checkin-ring-inner .checkin-sub { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+
+/* ===== Heatmap ===== */
+.heatmap {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 8px 0;
+}
+.heatmap-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.heatmap-day { font-size: 10px; color: var(--clr-text-secondary); }
+.heatmap-cell {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+.heatmap-cell.gold { background: #fff3e0; color: var(--clr-accent); }
+.heatmap-cell.late { background: #fff8e1; color: var(--clr-warning); }
+.heatmap-cell.fail { background: #ffebee; color: var(--clr-error); }
+.heatmap-cell.absent { background: #f5f5f5; color: var(--clr-text-muted); }
+
+/* ===== Leaderboard ===== */
+.lb-tabs {
+  display: flex;
+  background: var(--clr-surface);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  margin-bottom: 12px;
+  border: 1px solid var(--clr-border);
+}
+.lb-tab {
+  flex: 1;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--clr-text-secondary);
+  font-family: var(--font-body);
+  transition: all 0.2s;
+}
+.lb-tab.active { background: var(--clr-accent); color: white; font-weight: 600; }
+
+.lb-top3 {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 16px 0;
+}
+.lb-podium {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.lb-podium .avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+}
+.lb-podium.rank-1 .avatar {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #ffd700, #ffa000);
+  color: white;
+  box-shadow: 0 4px 16px rgba(255,169,0,0.3);
+}
+.lb-podium.rank-2 .avatar {
+  background: linear-gradient(135deg, #bdbdbd, #9e9e9e);
+  color: white;
+  box-shadow: 0 4px 12px rgba(158,158,158,0.3);
+}
+.lb-podium.rank-3 .avatar {
+  background: linear-gradient(135deg, #cd7f32, #a0522d);
+  color: white;
+  box-shadow: 0 4px 12px rgba(205,127,50,0.3);
+}
+.lb-podium .name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--clr-night);
+}
+.lb-podium .coins {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--clr-accent);
+}
+.lb-podium .title-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--clr-accent-soft);
+  color: var(--clr-accent);
+}
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 10px;
+  background: var(--clr-surface);
+  border-bottom: 1px solid var(--clr-border);
+  transition: background 0.2s;
+}
+.lb-row:first-of-type { border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.lb-row:last-of-type { border-radius: 0 0 var(--radius-md) var(--radius-md); border-bottom: none; }
+.lb-row.me { background: var(--clr-accent-soft); }
+.lb-rank {
+  width: 28px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--clr-text-secondary);
+}
+.lb-avatar-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--clr-night-light);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.lb-info { flex: 1; }
+.lb-name { font-size: 14px; font-weight: 500; color: var(--clr-night); }
+.lb-heat { display: flex; gap: 3px; margin-top: 2px; }
+.lb-heat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.lb-heat-dot.gold { background: var(--clr-accent); }
+.lb-heat-dot.late { background: var(--clr-warning); }
+.lb-heat-dot.fail { background: var(--clr-error); }
+.lb-heat-dot.absent { background: #ddd; }
+.lb-score { font-size: 16px; font-weight: 700; color: var(--clr-accent); }
+
+/* ===== Profile ===== */
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 10px;
+}
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--clr-night), var(--clr-night-light));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+.profile-name { font-size: 18px; font-weight: 700; color: var(--clr-night); }
+.profile-title-badge {
+  padding: 4px 14px;
+  border-radius: 16px;
+  background: var(--clr-accent-soft);
+  color: var(--clr-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.stat-item {
+  background: var(--clr-surface);
+  border-radius: var(--radius-md);
+  padding: 14px 8px;
+  text-align: center;
+  border: 1px solid var(--clr-border);
+}
+.stat-value { font-size: 22px; font-weight: 700; color: var(--clr-night); }
+.stat-label { font-size: 11px; color: var(--clr-text-secondary); margin-top: 2px; }
+
+.progress-bar-wrap {
+  background: #f0f0f0;
+  border-radius: 10px;
+  height: 8px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--clr-accent), #ffcc80);
+  transition: width 0.6s ease;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--clr-surface);
+  border-bottom: 1px solid var(--clr-border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.menu-item:first-of-type { border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.menu-item:last-of-type { border-radius: 0 0 var(--radius-md) var(--radius-md); border-bottom: none; }
+.menu-item-left { display: flex; align-items: center; gap: 10px; }
+.menu-icon { font-size: 20px; width: 24px; text-align: center; }
+.menu-text { font-size: 14px; color: var(--clr-night); font-weight: 500; }
+.menu-right { color: var(--clr-text-muted); font-size: 13px; }
+
+/* ===== Modal ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal-sheet {
+  width: 100%;
+  max-width: var(--phone-w);
+  background: var(--clr-surface);
+  border-radius: 20px 20px 0 0;
+  padding: 8px 16px 28px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.modal-overlay.show .modal-sheet { transform: translateY(0); }
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--clr-border);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 16px;
+  color: var(--clr-night);
+}
+
+/* ===== Check-in Success Animation ===== */
+.success-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(45,59,90,0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  border-radius: 28px;
+}
+.success-overlay.show { opacity: 1; pointer-events: auto; }
+.success-moon {
+  font-size: 64px;
+  animation: float-up 0.8s ease-out;
+}
+@keyframes float-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.success-text {
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 12px 0 4px;
+}
+.success-coins {
+  color: var(--clr-accent);
+  font-size: 36px;
+  font-weight: 700;
+  animation: coin-pop 0.6s 0.3s both;
+}
+@keyframes coin-pop {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.success-close {
+  margin-top: 24px;
+  padding: 10px 32px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.success-close:hover { background: rgba(255,255,255,0.3); }
+
+/* ===== Annotation Sidebar ===== */
+.annotation-panel {
+  width: 280px;
+  background: var(--clr-surface);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--clr-border);
+  font-size: 13px;
+  line-height: 1.7;
+  flex-shrink: 0;
+  max-height: calc(var(--phone-h) + 24px);
+  overflow-y: auto;
+}
+.annotation-panel h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--clr-night);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.annotation-panel h4 {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--clr-accent);
+  margin: 16px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.annotation-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-right: 4px;
+  margin-bottom: 4px;
+}
+.tag-flow { background: #e3f2fd; color: #1565c0; }
+.tag-ui { background: #fff3e0; color: #e65100; }
+.tag-data { background: #e8f5e9; color: #2e7d32; }
+.tag-ux { background: #fce4ec; color: #c62828; }
+
+.flow-step {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.flow-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--clr-night);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.flow-text { font-size: 12px; color: var(--clr-text-secondary); }
+
+/* ===== Responsive ===== */
+@media (max-width: 820px) {
+  .main-container { flex-direction: column; align-items: center; }
+  .annotation-panel { width: 100%; max-width: var(--phone-w); }
+  .phone-wrapper { position: static; }
+}
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="toolbar-title">
+    <h1>早睡星人</h1>
+    <span class="badge">线稿 + 原型</span>
+  </div>
+  <div class="toolbar-actions" id="toolbar-actions">
+    <button class="toolbar-btn active" data-mode="prototype">🎨 高保真原型</button>
+    <button class="toolbar-btn" data-mode="wireframe">📐 线稿模式</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main-container">
+  <!-- Phone -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen" id="phone-screen">
+        <div class="screen-container" id="screen-container">
+          <!-- Status Bar -->
+          <div class="status-bar">
+            <span class="time">21:03</span>
+            <div class="status-icons">
+              <span>WiFi</span>
+              <span>▮▮▮▮</span>
+              <span>🔋</span>
+            </div>
+          </div>
+
+          <!-- Page: Home -->
+          <div class="page active" id="page-home">
+            <div class="page-body">
+              <div class="page-header" style="padding-left:0;padding-right:0;">
+                <h2>🏠 早睡星人</h2>
+              </div>
+
+              <!-- Status Banner -->
+              <div class="status-banner">
+                <div class="round-info">第 3 轮 · 打卡第 3 天</div>
+                <div class="round-title">🌙 继续加油，保持早睡！</div>
+                <div class="round-progress">
+                  <span class="day-dot done">一<br>✓</span>
+                  <span class="day-dot done">二<br>✓</span>
+                  <span class="day-dot today">三</span>
+                  <span class="day-dot future">四</span>
+                  <span class="day-dot future">五</span>
+                  <span class="day-dot future">六</span>
+                  <span class="day-dot future">日</span>
+                </div>
+              </div>
+
+              <!-- Today's Status -->
+              <div class="card" style="background: linear-gradient(135deg, #fff8e1 0%, #ffffff 50%, #fff3e0 100%);">
+                <div class="card-header">
+                  <span class="card-title">今日打卡状态</span>
+                  <span class="card-subtitle" style="color:var(--clr-accent);font-weight:600;">🟡 还剩 2h27m</span>
+                </div>
+                <div style="text-align:center;padding:4px 0;">
+                  <div style="font-size:32px;margin-bottom:4px;">🌗</div>
+                  <div style="font-size:14px;color:var(--clr-text-secondary);">今天还没打卡哦，21:00-23:00 黄金时段</div>
+                </div>
+              </div>
+
+              <!-- Quick Check-in -->
+              <div class="checkin-hero" style="margin:-8px 0 12px;">
+                <div class="checkin-ring" onclick="triggerCheckin()">
+                  <div class="checkin-ring-inner">
+                    <span class="moon-icon">🌙</span>
+                    <span class="checkin-text">我准备睡了！</span>
+                    <span class="checkin-sub">点击打卡</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Weekly Heatmap -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">本周打卡记录</span>
+                </div>
+                <div class="heatmap">
+                  <div class="heatmap-col">
+                    <span class="heatmap-day">一</span>
+                    <div class="heatmap-cell gold">✓</div>
+                  </div>
+                  <div class="heatmap-col">
+                    <span class="heatmap-day">二</span>
+                    <div class="heatmap-cell gold">✓</div>
+                  </div>
+                  <div class="heatmap-col">
+                    <span class="heatmap-day">三</span>
+                    <div class="heatmap-cell" style="border:2px dashed var(--clr-accent);color:var(--clr-text-muted);">-</div>
+                  </div>
+                  <div class="heatmap-col">
+                    <span class="heatmap-day">四</span>
+                    <div class="heatmap-cell" style="background:#fafafa;color:var(--clr-text-muted);">-</div>
+                  </div>
+                  <div class="heatmap-col">
+                    <span class="heatmap-day">五</span>
+                    <div class="heatmap-cell" style="background:#fafafa;color:var(--clr-text-muted);">-</div>
+                  </div>
+                  <div class="heatmap-col">
+                    <span class="heatmap-day">六</span>
+                    <div class="heatmap-cell" style="background:#fafafa;color:var(--clr-text-muted);">-</div>
+                  </div>
+                  <div class="heatmap-col">
+                    <span class="heatmap-day">日</span>
+                    <div class="heatmap-cell" style="background:#fafafa;color:var(--clr-text-muted);">-</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Group Activity -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">群动态 · 熬夜互助群</span>
+                  <span class="card-subtitle">8/10 人</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <div style="display:flex;align-items:center;gap:10px;font-size:13px;">
+                    <div class="lb-avatar-small">C</div>
+                    <span style="flex:1;">陈皮皮 已睡 · 21:12</span>
+                    <span style="color:var(--clr-success);font-weight:600;">🟢</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:10px;font-size:13px;">
+                    <div class="lb-avatar-small">W</div>
+                    <span style="flex:1;">王富贵 已睡 · 21:05</span>
+                    <span style="color:var(--clr-success);font-weight:600;">🟢</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--clr-text-secondary);">
+                    <div class="lb-avatar-small">Z</div>
+                    <span style="flex:1;">赵六 勉强打卡 · 23:15</span>
+                    <span style="color:var(--clr-warning);font-weight:600;">🟡</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reminder Setting -->
+              <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div class="card-title" style="margin-bottom:2px;">⏰ 每日提醒</div>
+                  <div class="card-subtitle">21:00 推送打卡通知</div>
+                </div>
+                <div style="font-size:13px;color:var(--clr-accent);font-weight:600;">已开启</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Page: Check-in -->
+          <div class="page" id="page-checkin">
+            <div class="page-body">
+              <div class="page-header" style="padding-left:0;padding-right:0;">
+                <h2>🌙 打卡</h2>
+              </div>
+
+              <!-- Time Display -->
+              <div class="card" style="text-align:center;padding:24px;">
+                <div style="font-size:48px;font-weight:300;color:var(--clr-night);font-family:var(--font-mono);margin-bottom:4px;" id="live-time">21:03:45</div>
+                <div style="font-size:12px;color:var(--clr-text-secondary);">服务器时间</div>
+                <div style="margin-top:12px;padding:8px 16px;background:#e8f5e9;border-radius:20px;display:inline-block;font-size:13px;color:var(--clr-success);font-weight:600;">
+                  🟢 早睡黄金时段 · 距结束 1h57m
+                </div>
+              </div>
+
+              <!-- Check-in Button -->
+              <div class="checkin-hero">
+                <div class="checkin-ring" onclick="triggerCheckinFromPage()" style="width:160px;height:160px;">
+                  <div class="checkin-ring-inner">
+                    <span class="moon-icon" style="font-size:44px;">🌙</span>
+                    <span class="checkin-text" style="font-size:18px;">我准备睡了！</span>
+                    <span class="checkin-sub">点击打卡</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bedtime Question Preview -->
+              <div class="card" style="text-align:center;">
+                <div style="font-size:14px;color:var(--clr-text-secondary);margin-bottom:8px;">💡 打卡后将弹出「睡前小问」</div>
+                <div style="font-size:12px;color:var(--clr-text-muted);">确认你确实在操作手机，防止代打卡</div>
+              </div>
+
+              <!-- History -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">本周打卡记录</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--clr-border);">
+                    <span style="font-size:14px;">第 1 天 · 周一</span>
+                    <span style="font-weight:600;color:var(--clr-success);">🟢 21:15 · +2币</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--clr-border);">
+                    <span style="font-size:14px;">第 2 天 · 周二</span>
+                    <span style="font-weight:600;color:var(--clr-success);">🟢 22:01 · +2币</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+                    <span style="font-size:14px;color:var(--clr-text-muted);">第 3 天 · 周三</span>
+                    <span style="font-weight:600;color:var(--clr-text-muted);">待打卡</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Leave Request -->
+              <div class="card" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="requestLeave()">
+                <div>
+                  <div class="card-title" style="margin-bottom:2px;">🩹 今日请假</div>
+                  <div class="card-subtitle">剩余请假次数：1/1</div>
+                </div>
+                <span style="font-size:13px;color:var(--clr-accent);">→</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Page: Leaderboard -->
+          <div class="page" id="page-leaderboard">
+            <div class="page-body">
+              <div class="page-header" style="padding-left:0;padding-right:0;">
+                <h2>🏆 排行榜</h2>
+              </div>
+
+              <div class="lb-tabs">
+                <button class="lb-tab active">本周排行</button>
+                <button class="lb-tab">历史总榜</button>
+                <button class="lb-tab">连续天数</button>
+              </div>
+
+              <!-- Top 3 -->
+              <div class="card" style="padding-bottom:8px;">
+                <div class="card-header">
+                  <span class="card-title">🥇 本周 Top 3</span>
+                </div>
+                <div class="lb-top3">
+                  <div class="lb-podium rank-2">
+                    <div class="avatar">W</div>
+                    <div class="name">王富贵</div>
+                    <div class="coins">16</div>
+                    <div class="title-badge">⭐ 早睡学徒</div>
+                  </div>
+                  <div class="lb-podium rank-1">
+                    <div class="avatar">C</div>
+                    <div class="name">陈皮皮</div>
+                    <div class="coins">20</div>
+                    <div class="title-badge">🌟 自律达人</div>
+                  </div>
+                  <div class="lb-podium rank-3">
+                    <div class="avatar">L</div>
+                    <div class="name">李四</div>
+                    <div class="coins">14</div>
+                    <div class="title-badge">⭐ 早睡学徒</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Full List -->
+              <div class="card" style="padding:0;overflow:hidden;">
+                <div class="lb-row">
+                  <span class="lb-rank" style="color:var(--clr-gold);">1</span>
+                  <div class="lb-avatar-small">C</div>
+                  <div class="lb-info">
+                    <div class="lb-name">陈皮皮</div>
+                    <div class="lb-heat">
+                      <span class="lb-heat-dot gold"></span><span class="lb-heat-dot gold"></span><span class="lb-heat-dot gold"></span><span class="lb-heat-dot late"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span>
+                    </div>
+                  </div>
+                  <span class="lb-score">20</span>
+                </div>
+                <div class="lb-row">
+                  <span class="lb-rank" style="color:var(--clr-silver);">2</span>
+                  <div class="lb-avatar-small">W</div>
+                  <div class="lb-info">
+                    <div class="lb-name">王富贵</div>
+                    <div class="lb-heat">
+                      <span class="lb-heat-dot gold"></span><span class="lb-heat-dot gold"></span><span class="lb-heat-dot gold"></span><span class="lb-heat-dot gold"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span>
+                    </div>
+                  </div>
+                  <span class="lb-score">16</span>
+                </div>
+                <div class="lb-row">
+                  <span class="lb-rank" style="color:var(--clr-bronze);">3</span>
+                  <div class="lb-avatar-small">L</div>
+                  <div class="lb-info">
+                    <div class="lb-name">李四</div>
+                    <div class="lb-heat">
+                      <span class="lb-heat-dot gold"></span><span class="lb-heat-dot gold"></span><span class="lb-heat-dot gold"></span><span class="lb-heat-dot late"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span>
+                    </div>
+                  </div>
+                  <span class="lb-score">14</span>
+                </div>
+                <div class="lb-row">
+                  <span class="lb-rank">4</span>
+                  <div class="lb-avatar-small">Z</div>
+                  <div class="lb-info">
+                    <div class="lb-name">赵六</div>
+                    <div class="lb-heat">
+                      <span class="lb-heat-dot gold"></span><span class="lb-heat-dot gold"></span><span class="lb-heat-dot late"></span><span class="lb-heat-dot late"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span>
+                    </div>
+                  </div>
+                  <span class="lb-score">12</span>
+                </div>
+                <div class="lb-row me">
+                  <span class="lb-rank" style="color:var(--clr-accent);">5</span>
+                  <div class="lb-avatar-small">你</div>
+                  <div class="lb-info">
+                    <div class="lb-name" style="color:var(--clr-accent);">我（你）</div>
+                    <div class="lb-heat">
+                      <span class="lb-heat-dot gold"></span><span class="lb-heat-dot gold"></span><span class="lb-heat-dot absent"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span><span class="lb-heat-dot future-dot"></span>
+                    </div>
+                  </div>
+                  <span class="lb-score">10</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Page: Profile -->
+          <div class="page" id="page-profile">
+            <div class="page-body">
+              <div class="page-header" style="padding-left:0;padding-right:0;">
+                <h2>👤 我的</h2>
+              </div>
+
+              <div class="profile-header">
+                <div class="profile-avatar">N</div>
+                <div class="profile-name">你的昵称</div>
+                <div class="profile-title-badge">🌟 自律达人</div>
+              </div>
+
+              <!-- Stats -->
+              <div class="stat-grid">
+                <div class="stat-item">
+                  <div class="stat-value">48</div>
+                  <div class="stat-label">累积早睡币</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">12</div>
+                  <div class="stat-label">总打卡天数</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">3</div>
+                  <div class="stat-label">参与轮数</div>
+                </div>
+              </div>
+
+              <!-- Title Progress -->
+              <div class="card">
+                <div class="card-title" style="margin-bottom:8px;">称号升级进度</div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--clr-text-secondary);margin-bottom:4px;">
+                  <span>🌟 自律达人</span>
+                  <span>48 / 60 → 💫 早睡之星</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" style="width:80%;"></div>
+                </div>
+              </div>
+
+              <!-- Medal Wall -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">🏅 勋章墙</span>
+                </div>
+                <div style="display:flex;gap:12px;overflow-x:auto;padding:4px 0;">
+                  <div style="text-align:center;flex-shrink:0;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#ffd700,#ff8f00);display:flex;align-items:center;justify-content:center;font-size:24px;">🌙</div>
+                    <div style="font-size:10px;color:var(--clr-text-secondary);margin-top:4px;">第1轮</div>
+                  </div>
+                  <div style="text-align:center;flex-shrink:0;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#ffd700,#ff8f00);display:flex;align-items:center;justify-content:center;font-size:24px;">🌙</div>
+                    <div style="font-size:10px;color:var(--clr-text-secondary);margin-top:4px;">第2轮</div>
+                  </div>
+                  <div style="text-align:center;flex-shrink:0;opacity:0.4;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#e0e0e0,#bdbdbd);display:flex;align-items:center;justify-content:center;font-size:24px;">🔒</div>
+                    <div style="font-size:10px;color:var(--clr-text-secondary);margin-top:4px;">第3轮</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Menu -->
+              <div class="card" style="padding:0;overflow:hidden;">
+                <div class="menu-item" onclick="navigateTo('wallet')">
+                  <div class="menu-item-left">
+                    <span class="menu-icon">💰</span>
+                    <span class="menu-text">押金与奖励</span>
+                  </div>
+                  <div class="menu-right">余额 ¥12.50 →</div>
+                </div>
+                <div class="menu-item">
+                  <div class="menu-item-left">
+                    <span class="menu-icon">📊</span>
+                    <span class="menu-text">睡眠周报</span>
+                  </div>
+                  <div class="menu-right">→</div>
+                </div>
+                <div class="menu-item">
+                  <div class="menu-item-left">
+                    <span class="menu-icon">🔔</span>
+                    <span class="menu-text">提醒设置</span>
+                  </div>
+                  <div class="menu-right">21:00 →</div>
+                </div>
+                <div class="menu-item">
+                  <div class="menu-item-left">
+                    <span class="menu-icon">📋</span>
+                    <span class="menu-text">活动规则</span>
+                  </div>
+                  <div class="menu-right">→</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Page: Wallet (sub-page) -->
+          <div class="page" id="page-wallet">
+            <div class="page-body">
+              <div class="page-header" style="padding-left:0;padding-right:0;display:flex;align-items:center;gap:10px;">
+                <span style="cursor:pointer;font-size:20px;" onclick="navigateTo('profile')">←</span>
+                <h2>💰 押金与奖励</h2>
+              </div>
+
+              <!-- Balance Card -->
+              <div class="card" style="background:linear-gradient(135deg,#2d3b5a,#1e2a3a);color:white;text-align:center;padding:24px;">
+                <div style="font-size:12px;opacity:0.7;margin-bottom:4px;">可提现余额</div>
+                <div style="font-size:40px;font-weight:700;">¥12.50</div>
+                <button class="btn btn-primary" style="margin-top:12px;background:var(--clr-accent);color:white;">提现至微信余额</button>
+                <div style="font-size:10px;opacity:0.5;margin-top:8px;">最低提现 1 元 · 免手续费</div>
+              </div>
+
+              <!-- Current Round -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">本轮押金状态 · 第3轮</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:var(--clr-text-secondary);">
+                  <span>已缴押金</span><span>¥10.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:var(--clr-text-secondary);">
+                  <span>累计扣罚</span><span style="color:var(--clr-error);">-¥0.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;font-weight:600;">
+                  <span>预计退还</span><span style="color:var(--clr-success);">¥10.00</span>
+                </div>
+              </div>
+
+              <!-- History -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">历史明细</span>
+                </div>
+                <div style="font-size:12px;color:var(--clr-text-secondary);display:flex;flex-direction:column;gap:4px;">
+                  <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--clr-border);">
+                    <span>第2轮 · 奖励</span><span style="color:var(--clr-success);">+¥7.60</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--clr-border);">
+                    <span>第2轮 · 押金退还</span><span style="color:var(--clr-success);">+¥10.00</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--clr-border);">
+                    <span>第2轮 · 缴纳押金</span><span style="color:var(--clr-error);">-¥10.00</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;padding:4px 0;">
+                    <span>第1轮 · 净收益</span><span style="color:var(--clr-success);">+¥5.20</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Bar -->
+          <div class="tab-bar">
+            <button class="tab-item active" onclick="switchPage('home')">
+              <span class="tab-icon">🏠</span>
+              <span class="tab-label">首页</span>
+            </button>
+            <button class="tab-item" onclick="switchPage('checkin')">
+              <span class="tab-icon">🌙</span>
+              <span class="tab-label">打卡</span>
+            </button>
+            <button class="tab-item" onclick="switchPage('leaderboard')">
+              <span class="tab-icon">🏆</span>
+              <span class="tab-label">排行榜</span>
+            </button>
+            <button class="tab-item" onclick="switchPage('profile')">
+              <span class="tab-icon">👤</span>
+              <span class="tab-label">我的</span>
+            </button>
+          </div>
+
+          <!-- Check-in Success Overlay -->
+          <div class="success-overlay" id="success-overlay">
+            <div class="success-moon">🌙✨</div>
+            <div class="success-text">晚安，早睡星人！</div>
+            <div class="success-coins">+2 🪙</div>
+            <div style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:2px;">打卡时间：21:03 · 黄金时段</div>
+            <button class="success-close" onclick="closeSuccess()">知道了</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotation Panel -->
+  <div class="annotation-panel" id="annotation-panel">
+    <h3>📋 设计说明</h3>
+    
+    <h4>页面架构</h4>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">
+      <span class="annotation-tag tag-flow">首页</span>
+      <span class="annotation-tag tag-flow">打卡页</span>
+      <span class="annotation-tag tag-flow">排行榜</span>
+      <span class="annotation-tag tag-flow">个人中心</span>
+      <span class="annotation-tag tag-flow">钱包页</span>
+    </div>
+
+    <h4>关键交互流程</h4>
+    <div class="flow-step">
+      <span class="flow-num">1</span>
+      <span class="flow-text">用户打开小程序 → 首页展示当前轮次状态</span>
+    </div>
+    <div class="flow-step">
+      <span class="flow-num">2</span>
+      <span class="flow-text">首页/打卡页点击「我准备睡了」→ 触发打卡</span>
+    </div>
+    <div class="flow-step">
+      <span class="flow-num">3</span>
+      <span class="flow-text">弹出「睡前小问」验证 → 答对后记录时间戳</span>
+    </div>
+    <div class="flow-step">
+      <span class="flow-num">4</span>
+      <span class="flow-text">打卡成功动画 → 展示早睡币获取结果</span>
+    </div>
+    <div class="flow-step">
+      <span class="flow-num">5</span>
+      <span class="flow-text">排行榜实时更新排名 + 热力图</span>
+    </div>
+
+    <h4>UI 组件清单</h4>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">
+      <span class="annotation-tag tag-ui">状态横幅</span>
+      <span class="annotation-tag tag-ui">环形打卡按钮</span>
+      <span class="annotation-tag tag-ui">打卡热力图</span>
+      <span class="annotation-tag tag-ui">排行榜 Top3</span>
+      <span class="annotation-tag tag-ui">排名列表行</span>
+      <span class="annotation-tag tag-ui">统计网格</span>
+      <span class="annotation-tag tag-ui">进度条</span>
+      <span class="annotation-tag tag-ui">勋章墙</span>
+      <span class="annotation-tag tag-ui">底部弹窗</span>
+      <span class="annotation-tag tag-ui">成功动效</span>
+    </div>
+
+    <h4>数据展现</h4>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">
+      <span class="annotation-tag tag-data">7天热力图</span>
+      <span class="annotation-tag tag-data">早睡币数字</span>
+      <span class="annotation-tag tag-data">押金/奖励金额</span>
+      <span class="annotation-tag tag-data">连续天数</span>
+      <span class="annotation-tag tag-data">历史明细列表</span>
+    </div>
+
+    <h4>UX 设计要点</h4>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">
+      <span class="annotation-tag tag-ux">打卡按钮最醒目</span>
+      <span class="annotation-tag tag-ux">即时的成功反馈</span>
+      <span class="annotation-tag tag-ux">自己的排名高亮</span>
+      <span class="annotation-tag tag-ux">社交动态滚动</span>
+      <span class="annotation-tag tag-ux">提现门槛 1 元</span>
+      <span class="annotation-tag tag-ux">封顶罚金不负债</span>
+    </div>
+
+    <h4>设计系统</h4>
+    <div style="font-size:12px;color:var(--clr-text-secondary);">
+      <p>🎨 主色调：暖琥珀 #F5A623 · 夜空蓝 #2D3B5A</p>
+      <p>📐 圆角系统：6 / 12 / 20 / 28px</p>
+      <p>🔤 字体：PingFang SC / Noto Sans SC</p>
+      <p>🌈 语义色彩：绿=成功 · 橙=警告 · 红=失败</p>
+      <p>📱 设计适配：375-414px 小程序标准宽度</p>
+    </div>
+
+    <h4>打卡时间规则</h4>
+    <div style="font-size:11px;color:var(--clr-text-secondary);">
+      <p>🟢 21:00-23:00 → +2币 · 扣0元</p>
+      <p>🟡 23:00-23:30 → +1币 · 扣1元</p>
+      <p>🔴 23:30后 → +0币 · 扣2元</p>
+      <p>⚫ 未打卡 → +0币 · 扣2元</p>
+      <p style="color:var(--clr-accent);margin-top:4px;">封顶：7天全未打卡=扣10元（等于押金）</p>
+    </div>
+  </div>
+</div>
+
+<!-- Bedtime Question Modal -->
+<div class="modal-overlay" id="question-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💡 睡前小问</div>
+    <div style="text-align:center;font-size:15px;color:var(--clr-night);margin-bottom:16px;" id="question-text">今天月亮是圆的还是弯的？</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-secondary btn-large" onclick="answerQuestion('圆')">🌕 圆的</button>
+      <button class="btn btn-secondary btn-large" onclick="answerQuestion('弯')">🌙 弯的</button>
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--clr-text-muted);margin-top:12px;">5秒内作答 · 防止代打卡</div>
+  </div>
+</div>
+
+<!-- Deposit Modal -->
+<div class="modal-overlay" id="deposit-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔐 缴纳押金</div>
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:36px;font-weight:700;color:var(--clr-night);">¥10.00</div>
+      <div style="font-size:12px;color:var(--clr-text-secondary);margin-top:4px;">本轮押金 · 微信支付</div>
+    </div>
+    <div style="background:#f9f9f9;border-radius:var(--radius-md);padding:12px;margin-bottom:16px;font-size:12px;color:var(--clr-text-secondary);">
+      <p>✅ 全勤打卡 → 押金全额退还 + 奖励</p>
+      <p>⚠️ 未打卡扣罚 → 罚金补给早睡成员</p>
+      <p>🔒 封顶扣除 = 押金总额</p>
+    </div>
+    <button class="btn btn-primary btn-large" onclick="closeModal('deposit-modal')">确认支付 ¥10.00</button>
+    <div style="text-align:center;font-size:10px;color:var(--clr-text-muted);margin-top:8px;">支付即同意活动规则 · 中途退出押金不退</div>
+  </div>
+</div>
+
+<!-- Leave Modal -->
+<div class="modal-overlay" id="leave-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🩹 申请请假</div>
+    <div style="text-align:center;font-size:14px;color:var(--clr-text-secondary);margin-bottom:16px;">
+      请假当天按 🟡 处理（扣1元而非2元）<br>每轮最多请假1天
+    </div>
+    <div style="font-size:12px;color:var(--clr-warning);text-align:center;margin-bottom:12px;">
+      ⚠️ 请假天数不计入连续早睡奖励
+    </div>
+    <button class="btn btn-primary btn-large" onclick="closeModal('leave-modal')">确认请假</button>
+    <button class="btn btn-secondary btn-large" style="margin-top:8px;" onclick="closeModal('leave-modal')">取消</button>
+  </div>
+</div>
+
+<script>
+// ===== Page Navigation =====
+function switchPage(pageName) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+
+  const pageEl = document.getElementById('page-' + pageName);
+  if (pageEl) pageEl.classList.add('active');
+
+  // Highlight correct tab
+  const tabMap = { home: 0, checkin: 1, leaderboard: 2, profile: 3 };
+  const idx = tabMap[pageName];
+  if (idx !== undefined) {
+    document.querySelectorAll('.tab-item')[idx].classList.add('active');
+  }
+}
+
+function navigateTo(pageName) {
+  if (pageName === 'wallet') {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-wallet').classList.add('active');
+  } else if (pageName === 'profile') {
+    switchPage('profile');
+  }
+}
+
+// ===== Check-in Flow =====
+function triggerCheckin() {
+  // Show bedtime question modal
+  document.getElementById('question-modal').classList.add('show');
+}
+
+function triggerCheckinFromPage() {
+  triggerCheckin();
+}
+
+function answerQuestion(choice) {
+  // Close question modal
+  document.getElementById('question-modal').classList.remove('show');
+  
+  // Show success overlay after brief delay
+  setTimeout(() => {
+    document.getElementById('success-overlay').classList.add('show');
+  }, 300);
+}
+
+function closeSuccess() {
+  document.getElementById('success-overlay').classList.remove('show');
+}
+
+// ===== Modal Helpers =====
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.remove('show');
+}
+
+function requestLeave() {
+  document.getElementById('leave-modal').classList.add('show');
+}
+
+// ===== Modal click-outside dismiss =====
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('show');
+    }
+  });
+});
+
+// ===== Wireframe/Prototype Toggle =====
+document.querySelectorAll('[data-mode]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    
+    const mode = this.dataset.mode;
+    const screen = document.getElementById('phone-screen');
+    
+    if (mode === 'wireframe') {
+      screen.style.setProperty('--clr-bg', '#ffffff');
+      screen.style.setProperty('--clr-surface', '#ffffff');
+      screen.style.setProperty('--clr-accent', '#333333');
+      screen.style.setProperty('--clr-accent-soft', '#f0f0f0');
+      screen.style.setProperty('--clr-night', '#333333');
+      screen.style.setProperty('--clr-night-light', '#666666');
+      screen.style.setProperty('--clr-border', '#cccccc');
+      screen.style.setProperty('--clr-text', '#222222');
+      screen.style.setProperty('--clr-text-secondary', '#666666');
+      screen.style.setProperty('--clr-text-muted', '#999999');
+    } else {
+      screen.style.removeProperty('--clr-bg');
+      screen.style.removeProperty('--clr-surface');
+      screen.style.removeProperty('--clr-accent');
+      screen.style.removeProperty('--clr-accent-soft');
+      screen.style.removeProperty('--clr-night');
+      screen.style.removeProperty('--clr-night-light');
+      screen.style.removeProperty('--clr-border');
+      screen.style.removeProperty('--clr-text');
+      screen.style.removeProperty('--clr-text-secondary');
+      screen.style.removeProperty('--clr-text-muted');
+    }
+  });
+});
+
+// ===== Live Clock =====
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+  const el = document.getElementById('live-time');
+  if (el) el.textContent = h + ':' + m + ':' + s;
+}
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+
+</body>
+</html>

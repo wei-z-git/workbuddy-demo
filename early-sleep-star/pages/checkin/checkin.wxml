@@ -1,0 +1,99 @@
+<view class="page-body">
+
+  <!-- 时间显示 -->
+  <view class="card time-card">
+    <view class="time-display">{{serverTime}}</view>
+    <view class="time-label">服务器时间</view>
+    <view class="period-badge {{periodInfo.period}}">
+      {{periodInfo.emoji}} {{periodInfo.label}} · 距结束 {{remaining}}
+    </view>
+  </view>
+
+  <!-- 打卡按钮 -->
+  <view class="checkin-hero">
+    <view class="checkin-ring {{inCheckinWindow ? '' : 'disabled'}}" bindtap="onCheckinTap">
+      <view class="checkin-ring-outer animate-ring-spin"></view>
+      <view class="checkin-ring-inner">
+        <view class="moon-icon large">🌙</view>
+        <view class="checkin-text large">我准备睡了！</view>
+        <view class="checkin-sub">点击打卡</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 睡前小问提示 -->
+  <view class="card question-preview">
+    <view class="question-preview-text">💡 打卡后将弹出「睡前小问」</view>
+    <view class="question-preview-hint">确认你确实在操作手机，防止代打卡</view>
+  </view>
+
+  <!-- 本周打卡记录 -->
+  <view class="card">
+    <view class="card-header">
+      <view class="card-title">本周打卡记录</view>
+    </view>
+    <view class="history-list">
+      <view wx:for="{{checkinHistory}}" wx:key="dayNumber"
+        class="history-row {{item.dayNumber === checkinHistory.length ? '' : 'has-border'}}">
+        <view class="history-day">第 {{item.dayNumber}} 天 · {{item.weekDay}}</view>
+        <view class="history-result" style="color:{{item.emojiColor}};font-weight:600;">
+          {{item.statusText}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 请假入口 -->
+  <view class="card leave-card" bindtap="onRequestLeave">
+    <view class="leave-info">
+      <view class="card-title" style="margin-bottom:2px;">🩹 今日请假</view>
+      <view class="card-subtitle">剩余请假次数：{{leaveRemaining}}/1</view>
+    </view>
+    <view class="leave-arrow" style="color:var(--clr-accent);">→</view>
+  </view>
+
+</view>
+
+<!-- 睡前小问弹窗 -->
+<view class="modal-overlay" wx:if="{{showQuestion}}" bindtap="onCloseModal">
+  <view class="modal-sheet" catchtap="">
+    <view class="modal-handle"></view>
+    <view class="modal-title">💡 睡前小问</view>
+    <view class="question-text">{{currentQuestion.text}}</view>
+    <view class="question-options">
+      <view wx:for="{{currentQuestion.options}}" wx:key="value"
+        class="btn btn-secondary btn-large question-option"
+        data-value="{{item.value}}"
+        bindtap="onAnswerQuestion">
+        {{item.label}}
+      </view>
+    </view>
+    <view class="question-hint">5秒内作答 · 防止代打卡</view>
+  </view>
+</view>
+
+<!-- 打卡成功遮罩 -->
+<view class="success-overlay" wx:if="{{showSuccess}}">
+  <view class="success-moon animate-float-up">{{successInfo.emoji}}</view>
+  <view class="success-text">{{successInfo.text}}</view>
+  <view class="success-coins animate-coin-pop">{{successInfo.coins}}</view>
+  <view class="success-sub">打卡时间：{{successInfo.time}} · {{successInfo.periodLabel}}</view>
+  <view class="success-close-btn" bindtap="onCloseSuccess">知道了</view>
+</view>
+
+<!-- 请假弹窗 -->
+<view class="modal-overlay" wx:if="{{showLeave}}" bindtap="onCancelLeave">
+  <view class="modal-sheet" catchtap="">
+    <view class="modal-handle"></view>
+    <view class="modal-title">🩹 申请请假</view>
+    <view class="leave-modal-content">
+      请假当天按 🟡 处理（扣1元而非2元）
+      每轮最多请假1天
+    </view>
+    <view class="leave-modal-warning">
+      ⚠️ 请假天数不计入连续早睡奖励
+    </view>
+    <view class="btn btn-primary btn-large" bindtap="onConfirmLeave">确认请假</view>
+    <view class="btn btn-secondary btn-large cancel-btn" bindtap="onCancelLeave">取消</view>
+  </view>
+</view>
