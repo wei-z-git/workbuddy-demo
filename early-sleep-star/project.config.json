@@ -48,7 +48,7 @@
     "disableSWC": true
   },
   "compileType": "miniprogram",
-  "libVersion": "3.3.4",
+  "libVersion": "3.16.1",
   "appid": "wx5074ef13af35e25c",
   "projectname": "early-sleep-star",
   "condition": {},
