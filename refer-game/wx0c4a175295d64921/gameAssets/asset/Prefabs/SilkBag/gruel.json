@@ -1,0 +1,1 @@
+{"type":"Image","props":{"y":90,"x":0,"width":90,"skin":"build/gruel.png","presetID":1,"pivotY":45,"pivotX":45,"name":"gruelImg","isPresetRoot":true,"height":90},"compId":31,"child":[{"type":"Script","props":{"presetID":3,"runtime":"SilkBag/Gruel.ts"},"compId":33}],"loadList":["build/gruel.png"],"loadList3D":[]}

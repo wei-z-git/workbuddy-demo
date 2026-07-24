@@ -1,0 +1,1 @@
+{"type":"Sprite","props":{"y":0,"x":0,"width":50,"texture":"build/dice_1.png","presetID":1,"pivotY":25,"pivotX":25,"name":"DicePrefab","isPresetRoot":true,"height":50},"compId":22,"loadList":["build/dice_1.png"],"loadList3D":[]}

@@ -1,0 +1,1 @@
+{"type":"Sprite","props":{"x":0,"y":0,"presetID":1,"isPresetRoot":true},"compId":3,"child":[{"type":"Sprite","compId":9,"child":[{"type":"Circle","props":{"presetID":3},"compId":8}],"props":{"presetID":2}}],"loadList":[],"loadList3D":[]}

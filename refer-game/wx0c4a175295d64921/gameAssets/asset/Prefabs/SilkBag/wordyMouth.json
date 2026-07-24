@@ -1,0 +1,1 @@
+{"type":"Image","props":{"y":45,"x":45,"width":90,"skin":"build/mouth_1.png","presetID":1,"pivotY":45,"pivotX":45,"name":"wordyImg","isPresetRoot":true,"height":90},"compId":21,"child":[{"type":"Script","props":{"presetID":2,"runtime":"SilkBag/WordyMouth.ts"},"compId":25}],"loadList":["build/mouth_1.png"],"loadList3D":[]}

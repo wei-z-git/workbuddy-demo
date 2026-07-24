@@ -1,0 +1,1 @@
+{"type":"Image","props":{"y":45,"x":45,"width":90,"skin":"build/frogAt_1.png","presetID":1,"pivotY":45,"pivotX":45,"name":"frogImg","isPresetRoot":true,"height":90},"compId":4,"child":[{"type":"Script","props":{"presetID":3,"runtime":"SilkBag/Frog.ts"},"compId":6}],"loadList":["build/frogAt_1.png"],"loadList3D":[]}

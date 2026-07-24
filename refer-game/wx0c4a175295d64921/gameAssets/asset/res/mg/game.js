@@ -1,0 +1,1 @@
+console.log("mg/game.js 分包加载");

@@ -1,0 +1,1 @@
+{"type":"Image","props":{"y":45,"x":45,"width":90,"presetID":1,"pivotY":45,"pivotX":45,"name":"combatDoor","isPresetRoot":true,"height":90},"compId":25,"child":[{"type":"Script","props":{"presetID":2,"runtime":"SilkBag/CombatDoor.ts"},"compId":27}],"loadList":[],"loadList3D":[]}

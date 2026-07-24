@@ -1,0 +1,1 @@
+{"type":"Image","props":{"y":45,"x":45,"width":90,"skin":"build/chewgun.png","presetID":1,"pivotY":45,"pivotX":45,"name":"chewgunImg","isPresetRoot":true,"height":90},"compId":24,"child":[{"type":"Script","props":{"presetID":3,"runtime":"SilkBag/Chewgun.ts"},"compId":26}],"loadList":["build/chewgun.png"],"loadList3D":[]}

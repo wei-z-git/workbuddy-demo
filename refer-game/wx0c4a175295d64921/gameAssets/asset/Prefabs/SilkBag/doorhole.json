@@ -1,0 +1,1 @@
+{"type":"Image","props":{"y":45,"x":45,"width":90,"skin":"build/doorhole.png","scaleY":1.2,"scaleX":1.2,"presetID":1,"pivotY":45,"pivotX":45,"name":"doorholeImg","isPresetRoot":true,"height":90},"compId":26,"child":[{"type":"Script","props":{"presetID":3,"runtime":"SilkBag/Doorhole.ts"},"compId":28}],"loadList":["build/doorhole.png"],"loadList3D":[]}

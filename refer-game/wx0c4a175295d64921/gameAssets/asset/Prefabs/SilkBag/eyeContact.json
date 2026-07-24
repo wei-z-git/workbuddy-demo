@@ -1,0 +1,1 @@
+{"type":"Image","props":{"y":45,"x":45,"width":90,"skin":"build/eye_close.png","presetID":1,"pivotY":45,"pivotX":45,"name":"eyeImg","isPresetRoot":true,"height":90},"compId":15,"child":[{"type":"Script","props":{"presetID":3,"runtime":"SilkBag/EyeContact.ts"},"compId":17}],"loadList":["build/eye_close.png"],"loadList3D":[]}

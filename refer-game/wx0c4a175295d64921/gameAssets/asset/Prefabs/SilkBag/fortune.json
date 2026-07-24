@@ -1,0 +1,1 @@
+{"type":"Image","props":{"y":45,"x":45,"width":90,"skin":"build/fortune.png","scaleY":0.6,"scaleX":0.6,"presetID":1,"pivotY":45,"pivotX":45,"name":"fortuneImg","isPresetRoot":true,"height":90},"compId":28,"child":[{"type":"Script","props":{"presetID":3,"runtime":"SilkBag/Fortune.ts"},"compId":30}],"loadList":["build/fortune.png"],"loadList3D":[]}
